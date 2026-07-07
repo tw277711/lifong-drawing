@@ -90,34 +90,29 @@
             transform: translateY(-5px);
         }
 
-        /* 方案 A 核心：圖面預覽占位點擊區 */
+        /* 方案 B 核心：Iframe 圖片容器 */
         .image-container {
-            height: 160px;
+            height: 220px;
             background: #faf9f8;
+            position: relative;
+            border-bottom: 1px solid #edebe9;
+        }
+
+        .image-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .no-image {
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            border-bottom: 1px solid #edebe9;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            transition: background 0.2s;
-            gap: 8px;
-        }
-
-        .image-container:hover {
+            height: 100%;
+            color: #a1a09f;
+            font-size: 14px;
             background: #f3f2f1;
-        }
-
-        .blueprint-icon {
-            font-size: 42px;
-        }
-
-        .click-hint {
-            font-size: 12px;
-            color: #0078d4;
-            font-weight: bold;
         }
 
         /* 卡片內容區 */
@@ -161,46 +156,29 @@
             padding-top: 8px;
         }
 
-        /* 按鈕動作區（雙按鈕垂直並列排列） */
+        /* 按鈕區 */
         .card-actions {
-            padding: 12px 15px;
+            padding: 15px;
             background: #faf9f8;
             border-top: 1px solid #edebe9;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
         }
 
-        .btn-link {
+        .btn-a360 {
             display: block;
             width: 100%;
             text-align: center;
+            background: #0078d4;
+            color: white;
             padding: 10px;
             border-radius: 4px;
             text-decoration: none;
             font-weight: bold;
             font-size: 14px;
-            transition: opacity 0.2s;
+            transition: background 0.2s;
         }
 
-        .btn-link:hover {
-            opacity: 0.9;
-        }
-
-        .btn-blue2d {
-            background: #2b579a; /* 微軟深藍 */
-            color: white;
-        }
-
-        .btn-a360 {
-            background: #0078d4; /* 亮藍 */
-            color: white;
-        }
-
-        .btn-disabled {
-            background: #bfbfbf;
-            color: #ffffff;
-            cursor: not-allowed;
+        .btn-a360:hover {
+            background: #005a9e;
         }
 
         .loading {
@@ -232,8 +210,9 @@
 </div>
 
 <script>
-    // 🚨 請記得確認此處已換成您最新部署的 GAS 網址 (Web App URL)
-    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxjHraCuKIakwTXiEN7JBZthLbiU2boCQ1Svij-LIQ16O-vzjyqairbr1nQgdyNl8MJ/exec'; 
+    // 🚨 請換成您最新的 GAS 部署網址 (Web App URL)
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxjHraCuKIakwTXiEN7JBZthLbiU2boCQ1Svij-LIQ16O-vzjyqairbr1nQgdyNl8MJ/exec
+'; 
 
     let allBoilerData = []; // 存放所有從後端撈回來的鍋爐資料
 
@@ -260,7 +239,7 @@
             });
     }
 
-    // 將資料轉化為卡片渲染至網頁 (方案 A 版)
+    // 將資料轉化為卡片渲染至網頁 (方案 B：Iframe 內嵌版)
     function renderCards(data) {
         const container = document.getElementById('resultsContainer');
         const statusBar = document.getElementById('statusBar');
@@ -276,28 +255,20 @@
             const card = document.createElement('div');
             card.className = 'boiler-card';
 
-            // 1. 處理上方圖面占位點擊區：有設定 [圖面2] 超連結就允許點擊跳轉，沒設定就顯示無圖
-            const topImageContainer = item.imgUrl 
-                ? `<a class="image-container" href="${item.imgUrl}" target="_blank">
-                    <span class="blueprint-icon">📐</span>
-                    <span class="click-hint">🔍 點此於新分頁開啟 2D 圖面</span>
-                   </a>`
-                : `<div class="image-container" style="cursor: default;">
-                    <span class="blueprint-icon" style="opacity: 0.4;">🔒</span>
-                    <span style="font-size: 12px; color: #a1a09f;">暫無圖面連結</span>
-                   </div>`;
+            // 處理 A360 3D 模型按鈕
+            const a360Button = item.a360Url 
+                ? `<div class="card-actions"><a href="${item.a360Url}" target="_blank" class="btn-a360">🌐 開啟 A360 (3D 模型)</a></div>`
+                : `<div class="card-actions"><button class="btn-a360" style="background:#bfbfbf; cursor:not-allowed;" disabled>暫無 3D 模型</button></div>`;
 
-            // 2. 處理下方雙按鈕區：2D 圖面按鈕 與 3D 模型(A360) 按鈕
-            const btn2D = item.imgUrl
-                ? `<a href="${item.imgUrl}" target="_blank" class="btn-link btn-blue2d">👁️ 查看 2D 工程圖面</a>`
-                : `<button class="btn-link btn-disabled" disabled>暫無 2D 圖面</button>`;
-
-            const btn3D = item.a360Url 
-                ? `<a href="${item.a360Url}" target="_blank" class="btn-link btn-a360">🌐 開啟 A360 (3D 模型)</a>`
-                : `<button class="btn-link btn-disabled" disabled>暫無 3D 模型</button>`;
+            // 💡 方案 B 核心：判斷是否有 [圖面2] 超連結，有的話使用 <iframe> 直接嵌入微軟檢視網頁
+            const imageSection = item.imgUrl 
+                ? `<iframe src="${item.imgUrl}" scrolling="no" loading="lazy"></iframe>`
+                : `<div class="no-image">🔒 暫無 2D 圖面連結</div>`;
 
             card.innerHTML = `
-                ${topImageContainer}
+                <div class="image-container">
+                    ${imageSection}
+                </div>
                 <div class="card-content">
                     <div class="card-title">${item.title}</div>
                     <div class="tags-wrapper">
@@ -310,15 +281,12 @@
                         <span>位址: <strong>${item.location || '無'}</strong></span>
                     </div>
                 </div>
-                <div class="card-actions">
-                    ${btn2D}
-                    ${btn3D}
-                </div>
+                ${a360Button}
             `;
             container.appendChild(card);
         });
 
-        statusBar.innerHTML = `找到 ${data.length} 筆結果 (💡 提示：點擊按鈕或上方方塊，即可直接開啟微軟雲端圖檔)`;
+        statusBar.innerHTML = `找到 ${data.length} 筆結果 (💡 提醒：若內嵌圖面顯示未登入，請確保瀏覽器已登入公司微軟帳號並重整)`;
     }
 
     // 前端即時過濾篩選器 (支援多欄位關鍵字查詢)
