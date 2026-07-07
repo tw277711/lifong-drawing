@@ -90,7 +90,7 @@
             transform: translateY(-5px);
         }
 
-        /* 圖面預覽占位區（點擊可直接跳轉微軟） */
+        /* 方案 A 核心：圖面預覽占位點擊區 */
         .image-container {
             height: 160px;
             background: #faf9f8;
@@ -161,7 +161,7 @@
             padding-top: 8px;
         }
 
-        /* 按鈕動作區 */
+        /* 按鈕動作區（雙按鈕垂直並列排列） */
         .card-actions {
             padding: 12px 15px;
             background: #faf9f8;
@@ -232,8 +232,9 @@
 </div>
 
 <script>
-    // 🚨 請換成您最新的 GAS 部署網址 (Web App URL)
-    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxjHraCuKIakwTXiEN7JBZthLbiU2boCQ1Svij-LIQ16O-vzjyqairbr1nQgdyNl8MJ/exec'; 
+    // 🚨 請確認此處已換成您最新部署的 GAS 網址 (Web App URL)
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxjHraCuKIakwTXiEN7JBZthLbiU2boCQ1Svij-LIQ16O-vzjyqairbr1nQgdyNl8MJ/exec
+'; 
 
     let allBoilerData = []; // 存放所有從後端撈回來的鍋爐資料
 
@@ -260,7 +261,7 @@
             });
     }
 
-    // 將資料轉化為卡片渲染至網頁 (相容微軟安全機制的精美直連版)
+    // 將資料轉化為卡片渲染至網頁 (方案 A 版)
     function renderCards(data) {
         const container = document.getElementById('resultsContainer');
         const statusBar = document.getElementById('statusBar');
