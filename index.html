@@ -7,10 +7,13 @@
     <style>
         :root {
             --primary-color: #2b579a; /* 微軟風格深藍 */
+            --primary-hover: #1e3d6b;
             --background-color: #f3f2f1;
             --card-background: #ffffff;
             --text-color: #323130;
+            --text-secondary: #605e5c;
             --border-radius: 8px;
+            --border-color: #edebe9;
         }
 
         * {
@@ -43,204 +46,244 @@
         h1 {
             color: var(--primary-color);
             font-size: 24px;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
 
-        header p {
+        .status-bar {
             font-size: 14px;
-            color: #605e5c;
+            color: var(--text-secondary);
         }
 
-        /* 篩選與搜尋面板 */
+        /* 篩選面板面板 */
         .filter-panel {
             background: var(--card-background);
             padding: 20px;
             border-radius: var(--border-radius);
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
+            margin-bottom: 25px;
         }
 
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            flex: 1;
-            min-width: 160px;
+        .search-box {
+            margin-bottom: 15px;
         }
 
-        .filter-group label {
-            font-weight: 600;
-            font-size: 14px;
-            color: #605e5c;
-        }
-
-        .filter-group select, .filter-group input {
-            padding: 10px 12px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 15px;
-            background-color: #fff;
-            outline: none;
+        .search-box input {
             width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #d2d0ce;
+            border-radius: 4px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
         }
 
-        .filter-group select:focus, .filter-group input:focus {
+        .search-box input:focus {
             border-color: var(--primary-color);
         }
 
-        /* 狀態列 */
-        .status-bar {
-            margin-bottom: 15px;
-            font-size: 14px;
-            color: #605e5c;
-            font-weight: bold;
+        .select-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
         }
 
-        /* 卡片網格 */
-        .grid-container {
+        .select-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .select-item label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .select-item select {
+            padding: 10px;
+            border: 1px solid #d2d0ce;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+            outline: none;
+        }
+
+        .select-item select:focus {
+            border-color: var(--primary-color);
+        }
+
+        /* 載入動畫 */
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 0;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 圖面卡片網格 */
+        .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
+            gap: 20px;
         }
 
-        /* 鍋爐卡片本體 */
-        .boiler-card {
+        .card {
             background: var(--card-background);
             border-radius: var(--border-radius);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid var(--border-color);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .boiler-card:hover {
-            transform: translateY(-5px);
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         }
 
-        /* 方案 A 核心：圖面預覽占位點擊區 */
-        .image-container {
-            height: 160px;
-            background: #faf9f8;
+        /* 🖼️ 圖片容器樣式設定 */
+        .card-image-wrapper {
+            width: 100%;
+            height: 200px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* 確保工程圖面等比例縮放不變形 */
+            padding: 5px;
+            background: #ffffff;
+        }
+
+        .no-image {
+            color: #a19f9d;
+            font-size: 14px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            border-bottom: 1px solid #edebe9;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            transition: background 0.2s;
             gap: 8px;
         }
 
-        .image-container:hover {
-            background: #f3f2f1;
+        .no-image::before {
+            content: "🖼️";
+            font-size: 28px;
         }
 
-        .blueprint-icon {
-            font-size: 42px;
-        }
-
-        .click-hint {
-            font-size: 12px;
-            color: #0078d4;
-            font-weight: bold;
-        }
-
-        /* 卡片內容區 */
-        .card-content {
-            padding: 20px;
-            flex-grow: 1;
+        .card-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .card-title {
             font-size: 18px;
             font-weight: bold;
-            color: #201f1e;
-            margin-bottom: 12px;
+            color: var(--text-color);
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .tags-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 15px;
-        }
-
-        .tag {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .tag-model { background: #fde7e9; color: #a80000; }  /* 紅粉 */
-        .tag-type { background: #dff6dd; color: #107c41; }   /* 綠 */
-        .tag-spec { background: #deecf9; color: #106ebe; }   /* 藍 */
-
-        .info-row {
+        .card-subtitle {
             font-size: 13px;
-            color: #504f4e;
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-            border-top: 1px dashed #f3f2f1;
-            padding-top: 8px;
+            color: var(--text-secondary);
         }
 
-        /* 按鈕動作區（雙按鈕垂直排列） */
+        .card-body {
+            padding: 15px;
+            flex-grow: 1;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 70px 1fr;
+            row-gap: 8px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .info-value {
+            color: var(--text-color);
+        }
+
         .card-actions {
-            padding: 12px 15px;
-            background: #faf9f8;
-            border-top: 1px solid #edebe9;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            padding: 15px;
+            background: #fbfbfb;
+            border-top: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
         }
 
-        .btn-link {
-            display: block;
-            width: 100%;
-            text-align: center;
+        /* 按鈕樣式 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             padding: 10px;
+            font-size: 14px;
+            font-weight: 600;
             border-radius: 4px;
             text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-            transition: opacity 0.2s;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: none;
+            width: 100%;
         }
 
-        .btn-link:hover {
-            opacity: 0.9;
-        }
-
-        .btn-blue2d {
-            background: #2b579a; /* 微軟深藍 */
+        .btn-primary {
+            background-color: var(--primary-color);
             color: white;
         }
 
-        .btn-a360 {
-            background: #ff7a00; /* A360 原本的質感橘 */
-            color: white;
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
         }
 
-        .btn-disabled {
-            background: #bfbfbf;
-            color: #ffffff;
+        .btn-secondary {
+            background-color: #f3f2f1;
+            color: var(--text-color);
+            border: 1px solid #d2d0ce;
+        }
+
+        .btn-secondary:hover {
+            background-color: #edebe9;
+        }
+
+        .btn:disabled {
+            background-color: #f3f2f1;
+            color: #a19f9d;
+            border: 1px solid #edebe9;
             cursor: not-allowed;
-        }
-
-        .loading {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 40px;
-            font-size: 18px;
-            color: var(--primary-color);
-            font-weight: bold;
         }
     </style>
 </head>
@@ -248,142 +291,158 @@
 
 <div class="container">
     <header>
-        <h1>利峰機械 鍋爐圖面查詢系統</h1>
-        <p>經由微軟 SharePoint 雲端即時連動管理</p>
+        <h1>利峰機械 - 鍋爐圖面管理查詢系統</h1>
+        <div id="statusBar" class="status-bar">正在從雲端同步最新圖面資料...</div>
     </header>
 
     <div class="filter-panel">
-        <div class="filter-group" style="flex: 2; min-width: 240px;">
-            <label for="searchInput">關鍵字搜尋</label>
-            <input type="text" id="searchInput" placeholder="輸入圖面名稱、位址或狀態..." oninput="filterData()">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 輸入關鍵字搜尋 (例如：客戶名稱、安裝地點、狀態...)" oninput="filterData()">
         </div>
-        <div class="filter-group">
-            <label for="filterModel">型號 (熱值)</label>
-            <select id="filterModel" onchange="filterData()">
-                <option value="">全部</option>
-                <option value="100萬">100萬</option>
-                <option value="125萬">125萬</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label for="filterType">型式 (出風/出口)</label>
-            <select id="filterType" onchange="filterData()">
-                <option value="">全部</option>
-                <option value="後出">後出</option>
-                <option value="頂上出">頂上出</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label for="filterSpec">規範</label>
-            <select id="filterSpec" onchange="filterData()">
-                <option value="">全部</option>
-                <option value="CNS">CNS</option>
-            </select>
+        <div class="select-group">
+            <div class="select-item">
+                <label for="filterModel">鍋爐型號</label>
+                <select id="filterModel" onchange="filterData()">
+                    <option value="">全部型號</option>
+                </select>
+            </div>
+            <div class="select-item">
+                <label for="filterType">控制型式</label>
+                <select id="filterType" onchange="filterData()">
+                    <option value="">全部型式</option>
+                </select>
+            </div>
+            <div class="select-item">
+                <label for="filterSpec">規格容量</label>
+                <select id="filterSpec" onchange="filterData()">
+                    <option value="">全部規格</option>
+                </select>
+            </div>
         </div>
     </div>
 
-    <div id="statusBar" class="status-bar">正在從後端雲端載入最新資料...</div>
-
-    <div id="resultsContainer" class="grid-container">
-        <div class="loading">⏳ 圖面資料載入中，請稍候...</div>
+    <div id="loader" class="loader-container">
+        <div class="loader"></div>
+        <div style="color: var(--text-secondary);">正在安全連接 Microsoft SharePoint 資料庫...</div>
     </div>
+
+    <div id="cardsGrid" class="cards-grid" style="display: none;"></div>
 </div>
 
 <script>
-    // 🚨 這裡請一定要替換成您在 Google Apps Script (GAS) 部署後得到的「網頁應用程式 URL」
-    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxjHraCuKIakwTXiEN7JBZthLbiU2boCQ1Svij-LIQ16O-vzjyqairbr1nQgdyNl8MJ/exec'; 
+    // 🔗 請將此處替換為您全新部署發布的 Google Apps Script Web App 網址
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxjHraCuKIakwTXiEN7JBZthLbiU2boCQ1Svij-LIQ16O-vzjyqairbr1nQgdyNl8MJ/exec";
 
-    let boilerData = []; // 全域變數，存放後端撈回來的鍋爐原始資料
+    let boilerData = [];
 
-    // 網頁啟動時自動載入後端 API
-    window.onload = function() {
-        fetchBoilerData();
-    };
+    // 初始化載入
+    document.addEventListener("DOMContentLoaded", () => {
+        fetchData();
+    });
 
-    function fetchBoilerData() {
+    // 異步抓取 GAS 整合的 Microsoft Lists 資料
+    function fetchData() {
         fetch(GAS_API_URL)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("網路連線異常");
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    throw new Error(data.error);
+                    document.getElementById('statusBar').innerText = `連線失敗: ${data.error}`;
+                    document.getElementById('loader').style.display = 'none';
+                    return;
                 }
-                boilerData = data;       // 儲存從 GAS 撈到的最新資料
-                renderCards(boilerData); // 渲染出所有卡片
+                boilerData = data;
+                initFilters();
+                renderCards(boilerData);
+                
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('cardsGrid').style.display = 'grid';
             })
-            .catch(error => {
-                console.error("載入失敗:", error);
-                document.getElementById('statusBar').innerText = "❌ 無法讀取最新資料，請檢查後端 GAS 網址是否正確填入程式碼中。";
-                document.getElementById('resultsContainer').innerHTML = '';
+            .catch(err => {
+                document.getElementById('statusBar').innerText = "無法讀取資料，請確認 GAS API 是否部署正確。";
+                document.getElementById('loader').style.display = 'none';
+                console.error(err);
             });
     }
 
-    // 卡片動態生成函式 (方案 A 精美版)
+    // 動態初始化提取下拉選單清單（去重、排序）
+    function initFilters() {
+        const models = new Set();
+        const types = new Set();
+        const specs = new Set();
+
+        boilerData.forEach(item => {
+            if (item.model) models.add(item.model);
+            if (item.type) types.add(item.type);
+            if (item.spec) specs.add(item.spec);
+        });
+
+        populateSelect("filterModel", Array.from(models).sort());
+        populateSelect("filterType", Array.from(types).sort());
+        populateSelect("filterSpec", Array.from(specs).sort());
+    }
+
+    function populateSelect(elementId, items) {
+        const select = document.getElementById(elementId);
+        items.forEach(item => {
+            const opt = document.createElement("option");
+            opt.value = item;
+            opt.textContent = item;
+            select.appendChild(opt);
+        });
+    }
+
+    // 渲染卡片模組（含 📄 圖面影像加載機制）
     function renderCards(data) {
-        const container = document.getElementById('resultsContainer');
+        const container = document.getElementById('cardsGrid');
         const statusBar = document.getElementById('statusBar');
-        container.innerHTML = '';
+        container.innerHTML = "";
 
         if (data.length === 0) {
-            container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#a1a09f; background:#fff; border-radius:4px;">找不到符合條件的鍋爐圖面。</div>';
+            container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-secondary);">找不到符合條件的鍋爐圖面資料</div>`;
             statusBar.innerText = `找到 0 筆結果`;
             return;
         }
 
         data.forEach(item => {
+            // 🖼️ 處理 [圖面] 影像欄位顯示邏輯 (此處將直接讀取 GAS 轉譯後的 Base64 數據碼)
+            const imageHtml = item.imageUrl 
+                ? `<div class="card-image-wrapper"><img src="${item.imageUrl}" alt="${item.title}" loading="lazy"></div>`
+                : `<div class="card-image-wrapper"><div class="no-image">暫無圖面</div></div>`;
+
+            // 🌐 處理 [圖面2] SharePoint 原始大圖跳轉連結
+            const btn2D = item.a360Link 
+                ? `<a href="${item.a360Link}" target="_blank" class="btn btn-primary">📂 開啟原始圖面 (SharePoint)</a>` 
+                : `<button class="btn" disabled>🔒 無檢視連結</button>`;
+
             const card = document.createElement('div');
-            card.className = 'boiler-card';
-
-            // 1. 卡片上方占位點擊區
-            const topImageContainer = item.imgUrl 
-                ? `<a class="image-container" href="${item.imgUrl}" target="_blank">
-                    <span class="blueprint-icon">📐</span>
-                    <span class="click-hint">🔍 點此於新分頁開啟 2D 圖面</span>
-                   </a>`
-                : `<div class="image-container" style="cursor: default;">
-                    <span class="blueprint-icon" style="opacity: 0.4;">🔒</span>
-                    <span style="font-size: 12px; color: #a1a09f;">暫無圖面連結</span>
-                   </div>`;
-
-            // 2. 下方雙功能按鈕狀態判斷
-            const btn2D = item.imgUrl
-                ? `<a href="${item.imgUrl}" target="_blank" class="btn-link btn-blue2d">👁️ 查看 2D 工程圖面</a>`
-                : `<button class="btn-link btn-disabled" disabled>暫無 2D 圖面</button>`;
-
-            const btn3D = item.a360Url 
-                ? `<a href="${item.a360Url}" target="_blank" class="btn-link btn-a360">🌐 開啟 A360 (3D 模型)</a>`
-                : `<button class="btn-link btn-disabled" disabled>暫無 3D 模型</button>`;
-
+            card.className = 'card';
             card.innerHTML = `
-                ${topImageContainer}
-                <div class="card-content">
-                    <div class="card-title">${item.title}</div>
-                    <div class="tags-wrapper">
-                        <span class="tag tag-model">${item.model || '未分類'}</span>
-                        <span class="tag tag-type">${item.type || '未分類'}</span>
-                        <span class="tag tag-spec">${item.spec || 'CNS'}</span>
-                    </div>
-                    <div class="info-row">
-                        <span>狀態: <strong>${item.status || 'A1'}</strong></span>
-                        <span>位址: <strong>${item.location || '無'}</strong></span>
+                ${imageHtml}
+                <div class="card-header">
+                    <div class="card-title" title="${item.title}">${item.title}</div>
+                    <div class="card-subtitle">型號: ${item.model || '未註明'} | 規格: ${item.spec || '未註明'}</div>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-label">控制型式</div>
+                        <div class="info-value">${item.type || ' - '}</div>
+                        <div class="info-label">安裝地點</div>
+                        <div class="info-value">${item.location || '未填寫'}</div>
+                        <div class="info-label">設備狀態</div>
+                        <div class="info-value">${item.status || ' - '}</div>
                     </div>
                 </div>
                 <div class="card-actions">
                     ${btn2D}
-                    ${btn3D}
                 </div>
             `;
             container.appendChild(card);
         });
 
-        statusBar.innerText = `找到 ${data.length} 筆結果 (資料已同步自微軟 SharePoint)`;
+        statusBar.innerText = `找到 ${data.length} 筆結果 (資料已即時加密同步自微軟庫)`;
     }
 
-    // 核心功能：連動四合一即時篩選器（隨選、隨打、隨拆隨濾）
+    // 四合一連動即時篩選器（隨選、隨打、隨拆隨濾）
     function filterData() {
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
         const selectedModel = document.getElementById('filterModel').value;
@@ -391,16 +450,15 @@
         const selectedSpec = document.getElementById('filterSpec').value;
 
         const filtered = boilerData.filter(item => {
-            // 欄位下拉選單過濾
             const matchModel = selectedModel === "" || item.model === selectedModel;
             const matchType = selectedType === "" || item.type === selectedType;
             const matchSpec = selectedSpec === "" || item.spec === selectedSpec;
             
-            // 關鍵字輸入過濾
             const matchQuery = !query || (
                 (item.title && item.title.toLowerCase().includes(query)) ||
                 (item.location && item.location.toLowerCase().includes(query)) ||
-                (item.status && item.status.toLowerCase().includes(query))
+                (item.status && item.status.toLowerCase().includes(query)) ||
+                (item.model && item.model.toLowerCase().includes(query))
             );
 
             return matchModel && matchType && matchSpec && matchQuery;
