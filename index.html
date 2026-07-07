@@ -3,321 +3,382 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鍋爐圖面設計查詢系統</title>
+    <title>利峰機械 - 鍋爐圖面管理查詢系統</title>
     <style>
         :root {
-            --primary-color: #0078d4; /* Microsoft 藍 */
+            --primary-color: #0078d4;
+            --primary-dark: #005a9e;
             --bg-color: #f3f2f1;
             --card-bg: #ffffff;
-            --text-color: #323130;
+            --text-main: #323130;
+            --text-muted: #605e5c;
+            --border-color: #edebe9;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+            font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", "Microsoft JhengHei", sans-serif;
         }
 
         body {
             background-color: var(--bg-color);
-            color: var(--text-color);
+            color: var(--text-main);
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
         }
 
         header {
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #dedede;
+            margin-bottom: 25px;
+            text-align: center;
         }
 
-        h1 {
-            font-size: 24px;
+        header h1 {
+            font-size: 28px;
             color: #201f1e;
+            margin-bottom: 8px;
         }
 
-        /* 篩選面板 */
-        .filter-panel {
-            background: var(--card-bg);
+        header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* 搜尋與篩選區域 */
+        .search-panel {
+            background-color: var(--card-bg);
             padding: 20px;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 25px;
             display: flex;
-            gap: 20px;
             flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
         }
 
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+        .form-group {
             flex: 1;
             min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
-        .filter-group label {
+        .form-group label {
+            font-size: 13px;
             font-weight: 600;
-            font-size: 14px;
-            color: #605e5c;
+            color: var(--text-main);
         }
 
-        .filter-group select {
-            padding: 8px 12px;
-            border: 1px solid #a1a09f;
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
-            font-size: 15px;
+            font-size: 14px;
             background-color: #fff;
             outline: none;
+            transition: border 0.2s;
         }
 
-        .filter-group select:focus {
+        .form-group input:focus, .form-group select:focus {
             border-color: var(--primary-color);
         }
 
-        /* 結果統計 */
-        .status-bar {
-            margin-bottom: 15px;
+        .btn-clear {
+            padding: 10px 20px;
+            background-color: #f3f2f1;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-main);
             font-size: 14px;
-            color: #605e5c;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            height: 41px;
         }
 
-        /* 圖面卡片展示區 */
-        .results-container {
+        .btn-clear:hover {
+            background-color: #edebe9;
+        }
+
+        /* 狀態列 */
+        .status-bar {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            padding-left: 5px;
+            font-weight: 500;
+        }
+
+        /* 卡片網格結構 */
+        .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 15fr));
             gap: 25px;
+            width: 100%;
         }
 
         .boiler-card {
-            background: var(--card-bg);
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            border: 1px solid #edebe9;
-            transition: transform 0.2s;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .boiler-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
         }
 
-        /* 圖片區 */
+        /* 頂部預設 icon 區塊 */
         .image-container {
             width: 100%;
-            height: 250px;
-            background-color: #faf9f8;
-            position: relative;
-            cursor: pointer;
-            border-bottom: 1px solid #edebe9;
-            overflow: hidden;
+            height: 160px;
+            background: linear-gradient(135deg, #f3f2f1 0%, #e1dfdd 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--primary-dark);
+            gap: 8px;
         }
 
-        .image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* 確保工程圖不失真縮放 */
-            padding: 10px;
-            transition: transform 0.3s;
+        .image-container .icon {
+            font-size: 42px;
         }
 
-        .image-container:hover img {
-            transform: scale(1.03);
+        .image-container .hint {
+            font-size: 12px;
+            color: var(--text-muted);
         }
 
-        .zoom-hint {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background: rgba(0,0,0,0.6);
-            color: #fff;
-            padding: 4px 8px;
-            font-size: 11px;
-            border-radius: 4px;
-            pointer-events: none;
-        }
-
-        /* 內容資訊區 */
         .card-content {
-            padding: 20px;
+            padding: 18px;
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            flex-grow: 1;
         }
 
         .card-title {
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 700;
             color: #201f1e;
         }
 
         .tags-wrapper {
             display: flex;
-            gap: 8px;
             flex-wrap: wrap;
+            gap: 6px;
         }
 
         .tag {
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 12px;
             font-weight: 600;
         }
-        .tag-model { background: #fde7e9; color: #a80000; }  /* 紅粉 */
-        .tag-type { background: #dff6dd; color: #107c41; }   /* 綠 */
-        .tag-spec { background: #deecf9; color: #106ebe; }   /* 藍 */
+
+        .tag-model { background-color: #deecf9; color: #106ebe; }
+        .tag-type { background-color: #dff6dd; color: #107c41; }
+        .tag-spec { background-color: #fff4ce; color: #794500; }
 
         .info-row {
-            font-size: 14px;
-            color: #323130;
             display: flex;
             justify-content: space-between;
-            border-top: 1px dashed #edebe9;
-            padding-top: 8px;
+            font-size: 13px;
+            color: var(--text-main);
+            background: #faf9f8;
+            padding: 8px;
+            border-radius: 4px;
         }
 
-        /* 按鈕區 */
+        /* 按鈕控制區 */
         .card-actions {
-            padding: 0 20px 20px 20px;
+            padding: 0 18px 18px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn-action {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            transition: background 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-view-img {
+            background-color: #2b579a;
+            color: white;
+        }
+
+        .btn-view-img:hover {
+            background-color: #1e3d6b;
         }
 
         .btn-a360 {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 10px;
-            background-color: #ff7a00; /* A360 橘色調 */
+            background-color: #ea7500;
             color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 14px;
-            transition: background 0.2s;
         }
 
         .btn-a360:hover {
-            background-color: #e66e00;
+            background-color: #d16800;
         }
 
-        /* 燈箱大圖效果 (Lightbox) */
-        .lightbox {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            cursor: zoom-out;
+        .btn-disabled {
+            background-color: #f3f2f1;
+            color: #a1a09f;
+            cursor: not-allowed;
         }
 
-        .lightbox img {
-            max-width: 95%;
-            max-height: 95%;
-            object-fit: contain;
-            background: white;
-            padding: 10px;
-            border-radius: 4px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
-
-        /* 無資料提示 */
         .no-data {
             grid-column: 1 / -1;
             text-align: center;
-            padding: 50px;
-            color: #a1a09f;
-            background: #fff;
-            border-radius: 4px;
+            padding: 40px;
+            color: var(--text-muted);
             font-size: 16px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .loading {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            font-size: 16px;
+            color: var(--primary-color);
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>利峰機械 - 鍋爐產品圖面查詢</h1>
-    </header>
+    <div class="container">
+        <header>
+            <h1>利峰機械 - 鍋爐圖面管理查詢系統</h1>
+            <p>即時同步微軟 SharePoint 數據 ｜ 請確保已登入公司微軟帳號以順利看圖</p>
+        </header>
 
-    <div class="filter-panel">
-        <div class="filter-group">
-            <label for="filterModel">型號 (熱值)</label>
-            <select id="filterModel" onchange="filterData()">
-                <option value="">全部</option>
-                <option value="100萬">100萬</option>
-                <option value="125萬">125萬</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label for="filterType">型式 (出風/出口)</label>
-            <select id="filterType" onchange="filterData()">
-                <option value="">全部</option>
-                <option value="後出">後出</option>
-                <option value="頂上出">頂上出</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label for="filterSpec">規範</label>
-            <select id="filterSpec" onchange="filterData()">
-                <option value="">全部</option>
-                <option value="CNS">CNS</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="status-bar" id="statusBar">正在從雲端載入最新資料...</div>
-
-    <div class="results-container" id="resultsContainer">
+        <div class="search-panel">
+            <div class="form-group">
+                <label for="searchTitle">搜尋製造號碼 / 標題</label>
+                <input type="text" id="searchTitle" placeholder="輸入關鍵字..." oninput="filterData()">
+            </div>
+            <div class="form-group">
+                <label for="filterModel">型號篩選</label>
+                <select id="filterModel" onchange="filterData()">
+                    <option value="">全部型號</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="filterType">型式篩選</label>
+                <select id="filterType" onchange="filterData()">
+                    <option value="">全部型式</option>
+                </select>
+            </div>
+            <button class="btn-clear" onclick="clearFilters()">清除條件</button>
         </div>
 
-    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
-        <img id="lightboxImg" src="" alt="放大圖面">
+        <div class="status-bar" id="statusBar">資料載入中...</div>
+
+        <div class="grid-container" id="resultsContainer">
+            <div class="loading">正在連線至 GAS 後端讀取 SharePoint 數據，請稍後...</div>
+        </div>
     </div>
 
     <script>
-        // 🔗 串接後端：請將下方的網址替換為您在 GAS 部署得到的網頁應用程式網址
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxjHraCuKIakwTXiEN7JBZthLbiU2boCQ1Svij-LIQ16O-vzjyqairbr1nQgdyNl8MJ/exec";
+        // 🚨 請替換成您剛剛重新部署後的最新 GAS 執行網址 (網址最後面要是 /exec)
+        const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyb16wR3WdYVb-4Wun8FvLw_OQWb_YmR4yv9H6jCis4Ove1qNl-84w29_0l_9e06I-Y/exec'; 
 
-        // 全域變數，準備用來存放從 GAS 撈過來的資料
-        let boilerData = [];
+        let allBoilerData = []; // 儲存從後端抓到的完整陣列
 
-        // 網頁載入完成後，自動去向 GAS 要最新資料
-        window.onload = function() {
-            fetch(GAS_API_URL)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("網路連線異常");
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
-                    boilerData = data;       // 儲存資料
-                    renderCards(boilerData); // 渲染畫面
-                })
-                .catch(error => {
-                    console.error("載入失敗:", error);
-                    document.getElementById('statusBar').innerText = "❌ 無法讀取最新資料，請檢查後端 GAS 串接設定。";
-                });
-        };
+        // 頁面開啟自動初始化載入
+        window.addEventListener('DOMContentLoaded', fetchBoilerData);
 
-        // 渲染卡片函式
+        // 核心 1：異步向 GAS 索取數據
+        async function fetchBoilerData() {
+            const container = document.getElementById('resultsContainer');
+            const statusBar = document.getElementById('statusBar');
+
+            try {
+                const response = await fetch(GAS_API_URL);
+                if (!response.ok) throw new Error("網路連線異常");
+                
+                allBoilerData = await response.json();
+                
+                // 動態生成下拉選單選項
+                populateSelectOptions();
+                
+                // 渲染卡片
+                renderCards(allBoilerData);
+                
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `<div class="no-data" style="color:#d13438;">❌ 資料載入失敗。原因：${error.message}<br>請確認 GAS 部署網址是否正確並已允許對外公開存取。</div>`;
+                statusBar.innerText = "連線失敗";
+            }
+        }
+
+        // 核心 2：動態解析下拉選單 (自動去重)
+        function populateSelectOptions() {
+            const modelSelect = document.getElementById('filterModel');
+            const typeSelect = document.getElementById('filterType');
+
+            const models = new Set();
+            const types = new Set();
+
+            allBoilerData.forEach(item => {
+                if (item.model) models.add(item.model);
+                if (item.type) types.add(item.type);
+            });
+
+            models.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.innerText = m;
+                modelSelect.appendChild(opt);
+            });
+
+            types.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.innerText = t;
+                typeSelect.appendChild(opt);
+            });
+        }
+
+        // 核心 3：渲染卡片至 HTML 畫面 (整合超連結欄位與 A360)
         function renderCards(data) {
             const container = document.getElementById('resultsContainer');
             const statusBar = document.getElementById('statusBar');
             container.innerHTML = '';
 
             if (data.length === 0) {
-                container.innerHTML = '<div class="no-data">找不到符合條件的鍋爐圖面。</div>';
+                container.innerHTML = '<div class="no-data">找不到符合篩選條件的鍋爐項目。</div>';
                 statusBar.innerText = `找到 0 筆結果`;
                 return;
             }
@@ -326,17 +387,20 @@
                 const card = document.createElement('div');
                 card.className = 'boiler-card';
 
-                // 判斷是否有 A360 連結，若無則按鈕顯示暫無模型
+                // 2D 工程圖面按鈕 (方案 A 邏輯：有連結就秀出藍色大按鈕，沒有就呈現灰色停用)
+                const imgButton = item.imgUrl 
+                    ? `<a href="${item.imgUrl}" target="_blank" class="btn-action btn-view-img">👁️ 查看 2D 工程圖面</a>`
+                    : `<button class="btn-action btn-disabled" disabled>暫無 2D 圖面連結</button>`;
+
+                // 3D A360 模型按鈕
                 const a360Button = item.a360Url 
-                    ? `<div class="card-actions">
-                        <a href="${item.a360Url}" target="_blank" class="btn-a360">🌐 開啟 A360 (3D 模型)</a>
-                       </div>`
-                    : `<div class="card-actions"><button class="btn-a360" style="background:#bfbfbf; cursor:not-allowed;" disabled>暫無 3D 模型</button></div>`;
+                    ? `<a href="${item.a360Url}" target="_blank" class="btn-action btn-a360">🌐 開啟 A360 (3D模型)</a>`
+                    : `<button class="btn-action btn-disabled" disabled>暫無 3D 模型</button>`;
 
                 card.innerHTML = `
-                    <div class="image-container" onclick="openLightbox('${item.imgUrl}')">
-                        <img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://placehold.co/600x400?text=Wait+for+SharePoint+Login'">
-                        <div class="zoom-hint">🔍 點擊放大圖面</div>
+                    <div class="image-container">
+                        <span class="icon">📋</span>
+                        <span class="hint">製造號碼：${item.title}</span>
                     </div>
                     <div class="card-content">
                         <div class="card-title">${item.title}</div>
@@ -346,45 +410,45 @@
                             <span class="tag tag-spec">${item.spec || 'CNS'}</span>
                         </div>
                         <div class="info-row">
-                            <span>狀態: <strong>${item.status || 'A1'}</strong></span>
+                            <span>狀態: <strong>${item.status || '無'}</strong></span>
                             <span>位址: <strong>${item.location || '無'}</strong></span>
                         </div>
                     </div>
-                    ${a360Button}
+                    <div class="card-actions">
+                        ${imgButton}
+                        ${a360Button}
+                    </div>
                 `;
                 container.appendChild(card);
             });
 
-            statusBar.innerText = `找到 ${data.length} 筆結果 (資料已同步自微軟 SharePoint)`;
+            statusBar.innerText = `目前顯示： ${data.length} 筆鍋爐資料`;
         }
 
-        // 核心功能：立即篩選
+        // 核心 4：多重條件即時動態篩選
         function filterData() {
+            const searchText = document.getElementById('searchTitle').value.toLowerCase().trim();
             const selectedModel = document.getElementById('filterModel').value;
             const selectedType = document.getElementById('filterType').value;
-            const selectedSpec = document.getElementById('filterSpec').value;
 
-            const filtered = boilerData.filter(item => {
+            const filtered = allBoilerData.filter(item => {
+                const matchText = item.title.toLowerCase().includes(searchText) || 
+                                  (item.model && item.model.toLowerCase().includes(searchText));
                 const matchModel = selectedModel === "" || item.model === selectedModel;
                 const matchType = selectedType === "" || item.type === selectedType;
-                const matchSpec = selectedSpec === "" || item.spec === selectedSpec;
-                return matchModel && matchType && matchSpec;
+
+                return matchText && matchModel && matchType;
             });
 
             renderCards(filtered);
         }
 
-        // 燈箱大圖控制
-        function openLightbox(url) {
-            if(!url) return;
-            const lightbox = document.getElementById('lightbox');
-            const lightboxImg = document.getElementById('lightboxImg');
-            lightboxImg.src = url;
-            lightbox.style.display = 'flex';
-        }
-
-        function closeLightbox() {
-            document.getElementById('lightbox').style.display = 'none';
+        // 核心 5：清除篩選
+        function clearFilters() {
+            document.getElementById('searchTitle').value = '';
+            document.getElementById('filterModel').value = '';
+            document.getElementById('filterType').value = '';
+            renderCards(allBoilerData);
         }
     </script>
 </body>
