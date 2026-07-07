@@ -246,7 +246,6 @@
         <h1>利峰機械 - 鍋爐產品圖面查詢</h1>
     </header>
 
-    <!-- 篩選面板：隨點隨濾 -->
     <div class="filter-panel">
         <div class="filter-group">
             <label for="filterModel">型號 (熱值)</label>
@@ -273,69 +272,42 @@
         </div>
     </div>
 
-    <div class="status-bar" id="statusBar">正在載入資料...</div>
+    <div class="status-bar" id="statusBar">正在從雲端載入最新資料...</div>
 
-    <!-- 圖面卡片展示區 -->
     <div class="results-container" id="resultsContainer">
-        <!-- 由 JavaScript 自動動態生成 -->
-    </div>
+        </div>
 
-    <!-- 燈箱大圖彈出層 -->
     <div class="lightbox" id="lightbox" onclick="closeLightbox()">
         <img id="lightboxImg" src="" alt="放大圖面">
     </div>
 
     <script>
-        // 【核心資料庫】請根據實際的 SharePoint 網址與 A360 網址填入下方
-        // 這裡對應您在 image_a53ee0.png 中的資料內容
-        const boilerData = [
-            {
-                title: "斜口差壓壓板放鋼爐入口",
-                model: "100萬",
-                type: "後出",
-                status: "A1",
-                spec: "CNS",
-                location: "100後",
-                // 請替換成您在 SharePoint 圖片右鍵複製的實際連結
-                imgUrl: "https://22487603.sharepoint.com/sites/msteams_218d12/.../drawing1.png", 
-                // 請替換成該型號對應的 A360 3D模型分享連結
-                a360Url: "https://autodesk360.com/shares/your-3d-model-link-1" 
-            },
-            {
-                title: "斜口差壓壓板放鋼爐入口",
-                model: "100萬",
-                type: "頂上出",
-                status: "A1",
-                spec: "CNS",
-                location: "100上",
-                imgUrl: "https://22487603.sharepoint.com/sites/msteams_218d12/.../drawing2.png",
-                a360Url: "https://autodesk360.com/shares/your-3d-model-link-2"
-            },
-            {
-                title: "斜口差壓壓板放鋼爐入口",
-                model: "125萬",
-                type: "後出",
-                status: "A1",
-                spec: "CNS",
-                location: "",
-                imgUrl: "https://22487603.sharepoint.com/sites/msteams_218d12/.../drawing3.png",
-                a360Url: "" // 若無則留空，按鈕會自動隱藏
-            },
-            {
-                title: "斜口差壓壓板放鋼爐入口",
-                model: "125萬",
-                type: "頂上出",
-                status: "A1",
-                spec: "CNS",
-                location: "",
-                imgUrl: "https://22487603.sharepoint.com/sites/msteams_218d12/.../drawing4.png",
-                a360Url: "https://autodesk360.com/shares/your-3d-model-link-4"
-            }
-        ];
+        // 🔗 串接後端：請將下方的網址替換為您在 GAS 部署得到的網頁應用程式網址
+        const GAS_API_URL = "請在此處貼上您的GAS網頁應用程式網址";
 
-        // 初始化渲染
+        // 全域變數，準備用來存放從 GAS 撈過來的資料
+        let boilerData = [];
+
+        // 網頁載入完成後，自動去向 GAS 要最新資料
         window.onload = function() {
-            renderCards(boilerData);
+            fetch(GAS_API_URL)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("網路連線異常");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    boilerData = data;       // 儲存資料
+                    renderCards(boilerData); // 渲染畫面
+                })
+                .catch(error => {
+                    console.error("載入失敗:", error);
+                    document.getElementById('statusBar').innerText = "❌ 無法讀取最新資料，請檢查後端 GAS 串接設定。";
+                });
         };
 
         // 渲染卡片函式
@@ -354,7 +326,7 @@
                 const card = document.createElement('div');
                 card.className = 'boiler-card';
 
-                // 判斷是否有 A360 連結，若無則不顯示按鈕
+                // 判斷是否有 A360 連結，若無則按鈕顯示暫無模型
                 const a360Button = item.a360Url 
                     ? `<div class="card-actions">
                         <a href="${item.a360Url}" target="_blank" class="btn-a360">🌐 開啟 A360 (3D 模型)</a>
@@ -363,19 +335,18 @@
 
                 card.innerHTML = `
                     <div class="image-container" onclick="openLightbox('${item.imgUrl}')">
-                        <!-- 注意：實際使用時，確保瀏覽器已登入 SharePoint 帳號 -->
                         <img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://placehold.co/600x400?text=Wait+for+SharePoint+Login'">
                         <div class="zoom-hint">🔍 點擊放大圖面</div>
                     </div>
                     <div class="card-content">
                         <div class="card-title">${item.title}</div>
                         <div class="tags-wrapper">
-                            <span class="tag tag-model">${item.model}</span>
-                            <span class="tag tag-type">${item.type}</span>
-                            <span class="tag tag-spec">${item.spec}</span>
+                            <span class="tag tag-model">${item.model || '未分類'}</span>
+                            <span class="tag tag-type">${item.type || '未分類'}</span>
+                            <span class="tag tag-spec">${item.spec || 'CNS'}</span>
                         </div>
                         <div class="info-row">
-                            <span>狀態: <strong>${item.status}</strong></span>
+                            <span>狀態: <strong>${item.status || 'A1'}</strong></span>
                             <span>位址: <strong>${item.location || '無'}</strong></span>
                         </div>
                     </div>
@@ -384,7 +355,7 @@
                 container.appendChild(card);
             });
 
-            statusBar.innerText = `找到 ${data.length} 筆結果`;
+            statusBar.innerText = `找到 ${data.length} 筆結果 (資料已同步自微軟 SharePoint)`;
         }
 
         // 核心功能：立即篩選
@@ -405,6 +376,7 @@
 
         // 燈箱大圖控制
         function openLightbox(url) {
+            if(!url) return;
             const lightbox = document.getElementById('lightbox');
             const lightboxImg = document.getElementById('lightboxImg');
             lightboxImg.src = url;
