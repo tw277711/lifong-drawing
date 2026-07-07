@@ -6,270 +6,185 @@
     <title>利峰機械 - 鍋爐圖面管理查詢系統</title>
     <style>
         :root {
-            --primary-color: #0078d4;
-            --primary-dark: #005a9e;
-            --bg-color: #f3f2f1;
-            --card-bg: #ffffff;
-            --text-main: #323130;
-            --text-muted: #605e5c;
-            --border-color: #edebe9;
+            --primary-color: #2b579a; /* 微軟風格深藍 */
+            --background-color: #f3f2f1;
+            --card-background: #ffffff;
+            --text-color: #323130;
+            --border-radius: 8px;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", "Microsoft JhengHei", sans-serif;
+            font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background-color: var(--background-color);
+            color: var(--text-color);
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         .container {
-            width: 100%;
             max-width: 1200px;
+            margin: 0 auto;
         }
 
         header {
-            margin-bottom: 25px;
             text-align: center;
-        }
-
-        header h1 {
-            font-size: 28px;
-            color: #201f1e;
-            margin-bottom: 8px;
-        }
-
-        header p {
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        /* 搜尋與篩選區域 */
-        .search-panel {
-            background-color: var(--card-bg);
+            margin-bottom: 30px;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 25px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: flex-end;
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        .form-group {
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        /* 搜尋與篩選區塊 */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
             flex: 1;
-            min-width: 200px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .form-group label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 14px;
-            background-color: #fff;
-            outline: none;
-            transition: border 0.2s;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            border-color: var(--primary-color);
-        }
-
-        .btn-clear {
-            padding: 10px 20px;
-            background-color: #f3f2f1;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            color: var(--text-main);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-            height: 41px;
-        }
-
-        .btn-clear:hover {
-            background-color: #edebe9;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius);
+            font-size: 16px;
         }
 
         /* 狀態列 */
         .status-bar {
+            margin-bottom: 20px;
             font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 15px;
-            padding-left: 5px;
-            font-weight: 500;
+            color: #605e5c;
+            font-weight: bold;
         }
 
-        /* 卡片網格結構 */
+        /* 卡片網格 */
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 15fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 25px;
-            width: 100%;
         }
 
+        /* 鍋爐卡片本體 */
         .boiler-card {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            border: 1px solid var(--border-color);
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s;
         }
 
         .boiler-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+            transform: translateY(-5px);
         }
 
-        /* 頂部預設 icon 區塊 */
+        /* 方案 B 核心：Iframe 圖片容器 */
         .image-container {
+            height: 220px;
+            background: #faf9f8;
+            position: relative;
+            border-bottom: 1px solid #edebe9;
+        }
+
+        .image-container iframe {
             width: 100%;
-            height: 160px;
-            background: linear-gradient(135deg, #f3f2f1 0%, #e1dfdd 100%);
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .no-image {
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--primary-dark);
-            gap: 8px;
+            height: 100%;
+            color: #a1a09f;
+            font-size: 14px;
+            background: #f3f2f1;
         }
 
-        .image-container .icon {
-            font-size: 42px;
-        }
-
-        .image-container .hint {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
+        /* 卡片內容區 */
         .card-content {
-            padding: 18px;
+            padding: 20px;
             flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
         }
 
         .card-title {
             font-size: 18px;
-            font-weight: 700;
+            font-weight: bold;
             color: #201f1e;
+            margin-bottom: 12px;
         }
 
         .tags-wrapper {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
+            margin-bottom: 15px;
         }
 
         .tag {
-            font-size: 11px;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
         }
 
-        .tag-model { background-color: #deecf9; color: #106ebe; }
-        .tag-type { background-color: #dff6dd; color: #107c41; }
-        .tag-spec { background-color: #fff4ce; color: #794500; }
+        .tag-model { background: #e1dfdd; color: #323130; }
+        .tag-type { background: #dff6dd; color: #107c41; }
+        .tag-spec { background: #fde7e9; color: #a80000; }
 
         .info-row {
+            font-size: 13px;
+            color: #504f4e;
             display: flex;
             justify-content: space-between;
-            font-size: 13px;
-            color: var(--text-main);
-            background: #faf9f8;
-            padding: 8px;
-            border-radius: 4px;
+            margin-top: 8px;
+            border-top: 1px dashed #f3f2f1;
+            padding-top: 8px;
         }
 
-        /* 按鈕控制區 */
+        /* 按鈕區 */
         .card-actions {
-            padding: 0 18px 18px 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .btn-action {
-            display: block;
-            width: 100%;
-            text-align: center;
-            padding: 10px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 700;
-            transition: background 0.2s;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-view-img {
-            background-color: #2b579a;
-            color: white;
-        }
-
-        .btn-view-img:hover {
-            background-color: #1e3d6b;
+            padding: 15px;
+            background: #faf9f8;
+            border-top: 1px solid #edebe9;
         }
 
         .btn-a360 {
-            background-color: #ea7500;
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: #0078d4;
             color: white;
+            padding: 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background 0.2s;
         }
 
         .btn-a360:hover {
-            background-color: #d16800;
-        }
-
-        .btn-disabled {
-            background-color: #f3f2f1;
-            color: #a1a09f;
-            cursor: not-allowed;
-        }
-
-        .no-data {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 40px;
-            color: var(--text-muted);
-            font-size: 16px;
-            background: white;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
+            background: #005a9e;
         }
 
         .loading {
-            grid-column: 1 / -1;
             text-align: center;
             padding: 40px;
-            font-size: 16px;
+            font-size: 18px;
             color: var(--primary-color);
             font-weight: bold;
         }
@@ -277,179 +192,125 @@
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>利峰機械 - 鍋爐圖面管理查詢系統</h1>
-            <p>即時同步微軟 SharePoint 數據 ｜ 請確保已登入公司微軟帳號以順利看圖</p>
-        </header>
+<div class="container">
+    <header>
+        <h1>利峰機械 鍋爐圖面查詢系統</h1>
+        <p>經由微軟 SharePoint 雲端即時連動管理</p>
+    </header>
 
-        <div class="search-panel">
-            <div class="form-group">
-                <label for="searchTitle">搜尋製造號碼 / 標題</label>
-                <input type="text" id="searchTitle" placeholder="輸入關鍵字..." oninput="filterData()">
-            </div>
-            <div class="form-group">
-                <label for="filterModel">型號篩選</label>
-                <select id="filterModel" onchange="filterData()">
-                    <option value="">全部型號</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="filterType">型式篩選</label>
-                <select id="filterType" onchange="filterData()">
-                    <option value="">全部型式</option>
-                </select>
-            </div>
-            <button class="btn-clear" onclick="clearFilters()">清除條件</button>
-        </div>
-
-        <div class="status-bar" id="statusBar">資料載入中...</div>
-
-        <div class="grid-container" id="resultsContainer">
-            <div class="loading">正在連線至 GAS 後端讀取 SharePoint 數據，請稍後...</div>
-        </div>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 輸入關鍵字搜尋（例如：製造號碼、形式、型號...）" oninput="filterData()">
     </div>
 
-    <script>
-        // 🚨 請替換成您剛剛重新部署後的最新 GAS 執行網址 (網址最後面要是 /exec)
-        const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxjHraCuKIakwTXiEN7JBZthLbiU2boCQ1Svij-LIQ16O-vzjyqairbr1nQgdyNl8MJ/exec'; 
+    <div id="statusBar" class="status-bar">正在從後端安全載入資料中...</div>
 
-        let allBoilerData = []; // 儲存從後端抓到的完整陣列
+    <div id="resultsContainer" class="grid-container">
+        <div class="loading">⏳ 圖面資料載入中，請稍候...</div>
+    </div>
+</div>
 
-        // 頁面開啟自動初始化載入
-        window.addEventListener('DOMContentLoaded', fetchBoilerData);
+<script>
+    // 🚨 請換成您最新的 GAS 部署網址 (Web App URL)
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxjHraCuKIakwTXiEN7JBZthLbiU2boCQ1Svij-LIQ16O-vzjyqairbr1nQgdyNl8MJ/exec'; 
 
-        // 核心 1：異步向 GAS 索取數據
-        async function fetchBoilerData() {
-            const container = document.getElementById('resultsContainer');
-            const statusBar = document.getElementById('statusBar');
+    let allBoilerData = []; // 存放所有從後端撈回來的鍋爐資料
 
-            try {
-                const response = await fetch(GAS_API_URL);
-                if (!response.ok) throw new Error("網路連線異常");
-                
-                allBoilerData = await response.json();
-                
-                // 動態生成下拉選單選項
-                populateSelectOptions();
-                
-                // 渲染卡片
+    // 網頁開啟時自動載入
+    window.onload = function() {
+        fetchBoilerData();
+    };
+
+    // 從 GAS 後端抓取 API 資料
+    function fetchBoilerData() {
+        fetch(GAS_API_URL)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('statusBar').innerText = `❌ 後端錯誤: ${data.error}`;
+                    return;
+                }
+                allBoilerData = data;
                 renderCards(allBoilerData);
-                
-            } catch (error) {
-                console.error(error);
-                container.innerHTML = `<div class="no-data" style="color:#d13438;">❌ 資料載入失敗。原因：${error.message}<br>請確認 GAS 部署網址是否正確並已允許對外公開存取。</div>`;
-                statusBar.innerText = "連線失敗";
-            }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('statusBar').innerText = '❌ 無法連線至後端資料庫，請檢查 GAS 網址與部署權限。';
+            });
+    }
+
+    // 將資料轉化為卡片渲染至網頁 (方案 B：Iframe 內嵌版)
+    function renderCards(data) {
+        const container = document.getElementById('resultsContainer');
+        const statusBar = document.getElementById('statusBar');
+        container.innerHTML = '';
+
+        if (data.length === 0) {
+            container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#a1a09f;">找不到符合條件的鍋爐圖面。</div>';
+            statusBar.innerText = `找到 0 筆結果`;
+            return;
         }
 
-        // 核心 2：動態解析下拉選單 (自動去重)
-        function populateSelectOptions() {
-            const modelSelect = document.getElementById('filterModel');
-            const typeSelect = document.getElementById('filterType');
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'boiler-card';
 
-            const models = new Set();
-            const types = new Set();
+            // 處理 A360 3D 模型按鈕
+            const a360Button = item.a360Url 
+                ? `<div class="card-actions"><a href="${item.a360Url}" target="_blank" class="btn-a360">🌐 開啟 A360 (3D 模型)</a></div>`
+                : `<div class="card-actions"><button class="btn-a360" style="background:#bfbfbf; cursor:not-allowed;" disabled>暫無 3D 模型</button></div>`;
 
-            allBoilerData.forEach(item => {
-                if (item.model) models.add(item.model);
-                if (item.type) types.add(item.type);
-            });
+            // 💡 方案 B 核心：判斷是否有 [圖面2] 超連結，有的話使用 <iframe> 直接嵌入微軟檢視網頁
+            const imageSection = item.imgUrl 
+                ? `<iframe src="${item.imgUrl}" scrolling="no" loading="lazy"></iframe>`
+                : `<div class="no-image">🔒 暫無 2D 圖面連結</div>`;
 
-            models.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m;
-                opt.innerText = m;
-                modelSelect.appendChild(opt);
-            });
-
-            types.forEach(t => {
-                const opt = document.createElement('option');
-                opt.value = t;
-                opt.innerText = t;
-                typeSelect.appendChild(opt);
-            });
-        }
-
-        // 核心 3：渲染卡片至 HTML 畫面 (整合超連結欄位與 A360)
-        function renderCards(data) {
-            const container = document.getElementById('resultsContainer');
-            const statusBar = document.getElementById('statusBar');
-            container.innerHTML = '';
-
-            if (data.length === 0) {
-                container.innerHTML = '<div class="no-data">找不到符合篩選條件的鍋爐項目。</div>';
-                statusBar.innerText = `找到 0 筆結果`;
-                return;
-            }
-
-            data.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'boiler-card';
-
-                // 2D 工程圖面按鈕 (方案 A 邏輯：有連結就秀出藍色大按鈕，沒有就呈現灰色停用)
-                const imgButton = item.imgUrl 
-                    ? `<a href="${item.imgUrl}" target="_blank" class="btn-action btn-view-img">👁️ 查看 2D 工程圖面</a>`
-                    : `<button class="btn-action btn-disabled" disabled>暫無 2D 圖面連結</button>`;
-
-                // 3D A360 模型按鈕
-                const a360Button = item.a360Url 
-                    ? `<a href="${item.a360Url}" target="_blank" class="btn-action btn-a360">🌐 開啟 A360 (3D模型)</a>`
-                    : `<button class="btn-action btn-disabled" disabled>暫無 3D 模型</button>`;
-
-                card.innerHTML = `
-                    <div class="image-container">
-                        <span class="icon">📋</span>
-                        <span class="hint">製造號碼：${item.title}</span>
+            card.innerHTML = `
+                <div class="image-container">
+                    ${imageSection}
+                </div>
+                <div class="card-content">
+                    <div class="card-title">${item.title}</div>
+                    <div class="tags-wrapper">
+                        <span class="tag tag-model">${item.model || '未輸入型號'}</span>
+                        <span class="tag tag-type">${item.type || '未輸入形式'}</span>
+                        <span class="tag tag-spec">${item.spec || 'CNS'}</span>
                     </div>
-                    <div class="card-content">
-                        <div class="card-title">${item.title}</div>
-                        <div class="tags-wrapper">
-                            <span class="tag tag-model">${item.model || '未分類'}</span>
-                            <span class="tag tag-type">${item.type || '未分類'}</span>
-                            <span class="tag tag-spec">${item.spec || 'CNS'}</span>
-                        </div>
-                        <div class="info-row">
-                            <span>狀態: <strong>${item.status || '無'}</strong></span>
-                            <span>位址: <strong>${item.location || '無'}</strong></span>
-                        </div>
+                    <div class="info-row">
+                        <span>狀態: <strong>${item.status || '無'}</strong></span>
+                        <span>位址: <strong>${item.location || '無'}</strong></span>
                     </div>
-                    <div class="card-actions">
-                        ${imgButton}
-                        ${a360Button}
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+                </div>
+                ${a360Button}
+            `;
+            container.appendChild(card);
+        });
 
-            statusBar.innerText = `目前顯示： ${data.length} 筆鍋爐資料`;
-        }
+        statusBar.innerHTML = `找到 ${data.length} 筆結果 (💡 提醒：若內嵌圖面顯示未登入，請確保瀏覽器已登入公司微軟帳號並重整)`;
+    }
 
-        // 核心 4：多重條件即時動態篩選
-        function filterData() {
-            const searchText = document.getElementById('searchTitle').value.toLowerCase().trim();
-            const selectedModel = document.getElementById('filterModel').value;
-            const selectedType = document.getElementById('filterType').value;
-
-            const filtered = allBoilerData.filter(item => {
-                const matchText = item.title.toLowerCase().includes(searchText) || 
-                                  (item.model && item.model.toLowerCase().includes(searchText));
-                const matchModel = selectedModel === "" || item.model === selectedModel;
-                const matchType = selectedType === "" || item.type === selectedType;
-
-                return matchText && matchModel && matchType;
-            });
-
-            renderCards(filtered);
-        }
-
-        // 核心 5：清除篩選
-        function clearFilters() {
-            document.getElementById('searchTitle').value = '';
-            document.getElementById('filterModel').value = '';
-            document.getElementById('filterType').value = '';
+    // 前端即時過濾篩選器 (支援多欄位關鍵字查詢)
+    function filterData() {
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        
+        if (!query) {
             renderCards(allBoilerData);
+            return;
         }
-    </script>
+
+        const filtered = allBoilerData.filter(item => {
+            return (
+                (item.title && item.title.toLowerCase().includes(query)) ||
+                (item.model && item.model.toLowerCase().includes(query)) ||
+                (item.type && item.type.toLowerCase().includes(query)) ||
+                (item.spec && item.spec.toLowerCase().includes(query)) ||
+                (item.location && item.location.toLowerCase().includes(query)) ||
+                (item.status && item.status.toLowerCase().includes(query))
+            );
+        });
+
+        renderCards(filtered);
+    }
+</script>
+
 </body>
 </html>
